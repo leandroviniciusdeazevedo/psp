@@ -1,0 +1,37 @@
+(function(htmlElement, maxWidth) {
+    function overrideElTransformTranslate3d(el, desiredTranslate3d) {
+        el.style.transform = '';
+
+        function getTranslateXY(element) {
+            const style = window.getComputedStyle(element)
+            const matrix = new DOMMatrixReadOnly(style.transform)
+            return {
+                translateX: matrix.m41,
+                translateY: matrix.m42
+            }
+        }
+
+        const actualTransform = getTranslateXY(el);
+        const [
+            x = actualTransform.translateX,
+            y = actualTransform.translateY,
+            z = 0
+        ] = desiredTranslate3d;
+
+        el.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
+    }
+
+    function optionalCalculateTransform() {
+        const windowWidth = window.innerWidth;
+
+        if (windowWidth < maxWidth) {
+            overrideElTransformTranslate3d(htmlElement, [0]);
+        } else {
+            htmlElement.style.transform = '';
+        }
+    }
+
+    window.addEventListener('resize', (e) => optionalCalculateTransform());
+
+    optionalCalculateTransform();
+}(document.querySelector('ul.menu'), 1200));
